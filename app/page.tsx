@@ -194,8 +194,6 @@ useEffect(() => {
 
   return (
   <div className="min-h-screen bg-[rgba(102,116,146,0.1)]  text-white p-1 sm:p-4">
-          <BackgroundBeams />
-
       <div className="max-w-7xl mx-auto px-1  ">
         {/* Header */}
       <div className="text-center mb-6">
