@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BackgroundBeams } from "../components/ui/background-beams";
+
 
 // Dynamically import Chessboard to avoid SSR issues
 const Chessboard = dynamic(() => import('chessboardjsx'), { ssr: false });
@@ -64,7 +66,7 @@ useEffect(() => {
 
   useEffect(() => {
     // Connect to backend
-    const newSocket = io('https://multiplayer-chess-backend-pxe2.onrender.com');
+    const newSocket = io('https://multiplayer-chess-backend-pxe2.onrender.com/');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -191,8 +193,10 @@ useEffect(() => {
   const isMyTurn = playerColor === gameState.currentTurn && gameState.gameStarted && !gameOver;
 
   return (
-  <div className="min-h-screen bg-gray-900 text-white p-1 sm:p-4">
-      <div className="max-w-7xl mx-auto px-1">
+  <div className="min-h-screen bg-[rgba(102,116,146,0.1)]  text-white p-1 sm:p-4">
+          <BackgroundBeams />
+
+      <div className="max-w-7xl mx-auto px-1  ">
         {/* Header */}
       <div className="text-center mb-6">
       <h1 className="text-3xl sm:text-4xl font-bold mb-2 flex items-center justify-center gap-2">
