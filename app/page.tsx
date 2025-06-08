@@ -64,7 +64,7 @@ useEffect(() => {
 
   useEffect(() => {
     // Connect to backend
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io('https://multiplayer-chess-backend-pxe2.onrender.com');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
