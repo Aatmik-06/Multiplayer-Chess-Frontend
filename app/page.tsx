@@ -15,6 +15,8 @@ import { BackgroundBeams } from "../components/ui/background-beams";
 // Dynamically import Chessboard to avoid SSR issues
 const Chessboard = dynamic(() => import('chessboardjsx'), { ssr: false });
 
+
+
 interface GameState {
   fen: string;
   currentTurn: 'white' | 'black';
@@ -33,6 +35,10 @@ interface MoveData {
 }
 
 export default function ChessGame() {
+  // Add this state for tracking selected square
+const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+const [highlightedSquares, setHighlightedSquares] = useState<{ [key: string]: { background: string; } }>({});
+
   const [socket, setSocket] = useState<Socket | null>(null);
   const [chess] = useState(new Chess());
   const [fen, setFen] = useState(chess.fen());
@@ -66,7 +72,7 @@ useEffect(() => {
 
   useEffect(() => {
     // Connect to backend
-    const newSocket = io('https://multiplayer-chess-backend-pxe2.onrender.com/');
+    const newSocket = io('http://localhost:5000');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -192,8 +198,57 @@ useEffect(() => {
 
   const isMyTurn = playerColor === gameState.currentTurn && gameState.gameStarted && !gameOver;
 
+const highlightLegalMoves = (square: string) => {
+  const moves = chess.moves({ square: square as any, verbose: true });
+  if (moves.length === 0) return;
+
+  const highlights: { [key: string]: { background: string; boxShadow?: string } } = {};
+  moves.forEach(move => {
+    highlights[move.to] = {
+  background: 'rgb(209, 213, 219, 0.8)', 
+  boxShadow: 'inset 0 0 0 2px rgb(37, 99, 235)'    };
+  });
+ highlightedSquares[square] = {
+  background: '#a0aec0', 
+};
+  setHighlightedSquares(highlights);
+};
+
+
+const handleSquareClick = (square: string) => {
+  if (!playerColor || gameState.currentTurn !== playerColor || gameOver) return;
+
+  if (selectedSquare) {
+    const moves = chess.moves({ square: selectedSquare as any, verbose: true });
+    const move = moves.find(m => m.to === square);
+    if (move) {
+      handleMove({ sourceSquare: selectedSquare, targetSquare: square });
+      setSelectedSquare(null);
+      setHighlightedSquares({});
+    } else {
+    
+      if (chess.get(square as any)?.color === (playerColor === 'white' ? 'w' : 'b')) {
+        setSelectedSquare(square);
+        highlightLegalMoves(square);
+      } else {
+        setSelectedSquare(null);
+        setHighlightedSquares({});
+      }
+    }
+  } else {
+    const piece = chess.get(square as any);
+    if (piece?.color === (playerColor === 'white' ? 'w' : 'b')) {
+      setSelectedSquare(square);
+      highlightLegalMoves(square);
+    }
+  }
+};
+
+
   return (
+    
   <div className="min-h-screen bg-[rgba(102,116,146,0.1)]  text-white p-1 sm:p-4">
+
       <div className="max-w-7xl mx-auto px-1  ">
         {/* Header */}
       <div className="text-center mb-6">
@@ -215,13 +270,14 @@ useEffect(() => {
   width={boardWidth}
   position={fen}
   orientation={playerColor || 'white'}
-  onDrop={handleMove}
+  onDrop={handleMove} // for drag
+  onSquareClick={handleSquareClick} // for click-to-move
+  squareStyles={highlightedSquares} // for highlighting
   allowDrag={({ piece }) => {
     if (!playerColor || gameOver) return false;
     return (
-      gameState.gameStarted && 
-      ((gameState.currentTurn === 'white' && playerColor === 'white') || 
-       (gameState.currentTurn === playerColor)) && 
+      gameState.gameStarted &&
+      gameState.currentTurn === playerColor &&
       piece.charAt(0) === (playerColor === 'white' ? 'w' : 'b')
     );
   }}
@@ -232,6 +288,7 @@ useEffect(() => {
   darkSquareStyle={{ backgroundColor: '#4a5568' }}
   lightSquareStyle={{ backgroundColor: '#e2e8f0' }}
 />
+
 
               )}
             </div>
