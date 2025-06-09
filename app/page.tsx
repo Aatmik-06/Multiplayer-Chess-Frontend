@@ -12,9 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackgroundBeams } from "../components/ui/background-beams";
 
 
-// Dynamically import Chessboard to avoid SSR issues
 const Chessboard = dynamic(() => import('chessboardjsx'), { ssr: false });
-
 
 
 interface GameState {
@@ -35,7 +33,6 @@ interface MoveData {
 }
 
 export default function ChessGame() {
-  // Add this state for tracking selected square
 const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 const [highlightedSquares, setHighlightedSquares] = useState<{ [key: string]: { background: string; } }>({});
 
@@ -55,14 +52,14 @@ const [highlightedSquares, setHighlightedSquares] = useState<{ [key: string]: { 
   const [gameOver, setGameOver] = useState(false);
 
   
-const [boardWidth, setBoardWidth] = useState(400); // default size
+const [boardWidth, setBoardWidth] = useState(400); 
 
 useEffect(() => {
   const updateSize = () => {
       const screenWidth = window.innerWidth;
-      if (screenWidth < 640) setBoardWidth(screenWidth - 32);         // mobile
-      else if (screenWidth < 1024) setBoardWidth(Math.min((screenWidth - 96) / 2, 480));    // tablet
-      else setBoardWidth(480);                                        // desktop
+      if (screenWidth < 640) setBoardWidth(screenWidth - 32);        
+      else if (screenWidth < 1024) setBoardWidth(Math.min((screenWidth - 96) / 2, 480));   
+      else setBoardWidth(480);                                        
     };
 
   updateSize();
