@@ -206,7 +206,8 @@ const highlightLegalMoves = (square: string) => {
   moves.forEach(move => {
     highlights[move.to] = {
   background: 'rgb(209, 213, 219, 0.8)', 
-  boxShadow: 'inset 0 0 0 2px rgb(37, 99, 235)'    };
+  boxShadow: 'inset 0 0 0 1.5px rgba(37, 99, 235, 0.7)'
+  };
   });
  highlightedSquares[square] = {
   background: '#a0aec0', 
