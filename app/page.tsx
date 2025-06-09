@@ -72,7 +72,7 @@ useEffect(() => {
 
   useEffect(() => {
     // Connect to backend
-    const newSocket = io('https://multiplayer-chess-backend-pxe2.onrender.com/');
+    const newSocket = io('http://localhost:5000');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -207,7 +207,7 @@ const highlightLegalMoves = (square: string) => {
     highlights[move.to] = {
   background: 'rgb(209, 213, 219, 0.8)', 
   boxShadow: 'inset 0 0 0 1.5px rgba(37, 99, 235, 0.7)'
-  };
+    };
   });
  highlightedSquares[square] = {
   background: '#a0aec0', 
@@ -245,6 +245,53 @@ const handleSquareClick = (square: string) => {
   }
 };
 
+const [whiteTime, setWhiteTime] = useState(600); // 10 minutes in seconds
+const [blackTime, setBlackTime] = useState(600);
+const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+useEffect(() => {
+  if (gameState.gameStarted && !gameOver) {
+    const interval = setInterval(() => {
+      if (gameState.currentTurn === 'white') {
+        setWhiteTime(prev => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            socket?.emit('game-over', { winner: 'black', reason: 'timeout' });
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else {
+        setBlackTime(prev => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            socket?.emit('game-over', { winner: 'white', reason: 'timeout' });
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
+    setTimerInterval(interval);
+    return () => clearInterval(interval);
+  }
+  return () => timerInterval && clearInterval(timerInterval);
+}, [gameState.currentTurn, gameState.gameStarted, gameOver]);
+
+const setGameTime = (minutes: number) => {
+  if (!gameState.gameStarted) {
+    const seconds = minutes * 60;
+    setWhiteTime(seconds);
+    setBlackTime(seconds);
+    socket?.emit('set-time', { time: seconds });
+  }
+};
 
   return (
     
@@ -311,19 +358,81 @@ const handleSquareClick = (square: string) => {
       </AlertDescription>
     </Alert>
   )}
+  <div className="grid grid-cols-2 gap-4">
+    {/* Connection Status */}
+    <Card className="bg-gray-800 border-gray-700">
+      <CardHeader className="pt-2 pb-3 max-sm:pb-2 max-sm:px-3">
+        <CardTitle className="flex items-center gap-2 text-base max-sm:text-xs">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          Status
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="max-sm:px-3 max-sm:pb-3">
+        <p className="text-sm max-sm:text-xs text-gray-300">
+          {isConnected ? 'Connected' : 'Disconnected'}
+        </p>
+      </CardContent>
+    </Card>
 
-  {/* Connection Status */}
-  <Card className="bg-gray-800 border-gray-700">
-    <CardHeader className="pt-2 pb-3 max-sm:pb-2 max-sm:px-3">
-      <CardTitle className="flex items-center gap-2 text-base max-sm:text-sm">
-        <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-        Connection Status
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="max-sm:px-3 max-sm:pb-3">
-      <p className="text-sm max-sm:text-xs text-gray-300">{isConnected ? 'Connected to server' : 'Disconnected from server'}</p>
-    </CardContent>
-  </Card>
+    {/* Timer Card */}
+    <Card className="bg-gray-800 border-gray-700">
+      <CardHeader className="pt-2 pb-3 max-sm:pb-2 max-sm:px-3">
+        <CardTitle className="flex items-center gap-2 text-base max-sm:text-xs">
+          <Clock className="w-4 h-4 text-blue-500" />
+          Timer
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 max-sm:px-3 max-sm:pb-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm max-sm:text-xs text-gray-300">White:</span>
+          <Badge variant="outline" className="max-sm:text-xs">
+            {formatTime(whiteTime)}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm max-sm:text-xs text-gray-300">Black:</span>
+          <Badge variant="outline" className="max-sm:text-xs">
+            {formatTime(blackTime)}
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+
+  {!gameState.gameStarted && (
+    <Card className="bg-gray-800 border-gray-700 mt-4">
+      <CardContent className="pt-4">
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setGameTime(5)} 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 max-sm:text-xs"
+          >
+            5min
+          </Button>
+          <Button 
+            onClick={() => setGameTime(10)} 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 max-sm:text-xs"
+          >
+            10min
+          </Button>
+          <Button 
+            onClick={() => setGameTime(15)} 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 max-sm:text-xs"
+          >
+            15min
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )}
+
+ 
 
   {/* Player Info */}
   <Card className="bg-gray-800 border-gray-700">
