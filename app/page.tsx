@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { BackgroundBeams } from "../components/ui/background-beams";
 
 
 const Chessboard = dynamic(() => import('chessboardjsx'), { ssr: false });
@@ -177,10 +176,8 @@ useEffect(() => {
       return;
     }
 
-    // Clear any previous errors
     setError('');
 
-    // Send move to server
     socket.emit('make-move', {
       from: sourceSquare,
       to: targetSquare
@@ -242,7 +239,7 @@ const handleSquareClick = (square: string) => {
   }
 };
 
-const [whiteTime, setWhiteTime] = useState(600); // 10 minutes in seconds
+const [whiteTime, setWhiteTime] = useState(600);
 const [blackTime, setBlackTime] = useState(600);
 const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
 
@@ -315,9 +312,9 @@ const setGameTime = (minutes: number) => {
   width={boardWidth}
   position={fen}
   orientation={playerColor || 'white'}
-  onDrop={handleMove} // for drag
-  onSquareClick={handleSquareClick} // for click-to-move
-  squareStyles={highlightedSquares} // for highlighting
+  onDrop={handleMove} 
+  onSquareClick={handleSquareClick} 
+  squareStyles={highlightedSquares} 
   allowDrag={({ piece }) => {
     if (!playerColor || gameOver) return false;
     return (
