@@ -337,17 +337,7 @@ const setGameTime = (minutes: number) => {
             </div>
           </CardContent>
         </Card>
-         <BorderBeam
-        duration={6}
-        size={400}
-        className="from-transparent via-red-500 to-transparent"
-      />
-      <BorderBeam
-        duration={6}
-        delay={3}
-        size={400}
-        className="from-transparent via-blue-500 to-transparent"
-      />
+        
       </div>
  
 

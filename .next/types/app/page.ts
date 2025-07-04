@@ -1,4 +1,4 @@
-// File: E:\project\frontend\app\page.tsx
+// File: D:\MultiplayerChess\frontend\app\page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
