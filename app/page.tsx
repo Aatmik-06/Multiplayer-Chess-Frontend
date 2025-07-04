@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BorderBeam } from "@/components/magicui/border-beam";
 
 
 const Chessboard = dynamic(() => import('chessboardjsx'), { ssr: false });
@@ -336,6 +337,17 @@ const setGameTime = (minutes: number) => {
             </div>
           </CardContent>
         </Card>
+         <BorderBeam
+        duration={6}
+        size={400}
+        className="from-transparent via-red-500 to-transparent"
+      />
+      <BorderBeam
+        duration={6}
+        delay={3}
+        size={400}
+        className="from-transparent via-blue-500 to-transparent"
+      />
       </div>
  
 
